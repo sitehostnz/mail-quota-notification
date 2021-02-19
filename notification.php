@@ -14,8 +14,8 @@
 $API_KEY = "";
 // Visible in the SiteHost Control Panel next to Client name with a # prefix.
 $client_id = "123456";
-// Name of the mailserver responsible for sending and recieving emails.
-$server_name = "";
+// Name of the mailserver responsible for sending and recieving emails. Our Shared Mail Service is 'sth-mail-air'
+$server_name = "sth-mail-air";
 // The email address where mail quota reports are delivered.
 $mail_dest = "bob@example.org";
 // Boolean flag for whether there should be a output via stdout.
