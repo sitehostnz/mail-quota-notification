@@ -1,6 +1,6 @@
 # Mailbox Quota Alert
 
-This PHP script utilises the SiteHost API to alert customers when mailboxes under their control exceed or get close to their quoted limits. It is a framework script that a customer can customise to their specific needs. It also features configurable console output and uses API keys that you can generate through the SiteHost Control Panel (cp.sitehost.nz).
+This PHP script utilises the SiteHost API to alert customers when mailboxes under their account exceed or get close to their quoted limits. It is a framework script that a customer can customise to their specific needs. It also features configurable console output and uses API keys that you can generate through the SiteHost Control Panel (cp.sitehost.nz).
 
 To learn more about the SiteHost API, please visit:
 
