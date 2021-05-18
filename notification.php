@@ -23,6 +23,7 @@ $term_output = True;
 
 $over_mailboxes = [];
 $close_mailboxes = [];
+$no_quota_mailboxes = [];
 
 // Querries the SiteHost API and returns a the JSON dictionary.
 function getAPI_JSON($uri) {
@@ -52,40 +53,49 @@ if($domains["status"]) {
 		// Iterate through each mailbox on the domain 
 		$mailboxes = getAPI_JSON(genURI('list_accounts', $API_KEY, $client_id, $server_name, $dm_resp['domain'])); 
 		if($mailboxes["status"]) {
-			foreach ($mailboxes["return"] as $mxb) {	
+			foreach ($mailboxes["return"] as $mxb) {
 				// Generate a quota percent. This is a variable out of 100.
 				// quota_used is in Bytes while quota is in MegaBytes
-				$quota_percent = ($mxb['quota_used']/1000)/$mxb['quota'] * 100;
-				// This is where the over-quota mailboxes are seperated.
-				if($quota_percent >= 100) {
-					$over_mailboxes[] = $mxb['emailaddr'];
+				if ($mxb['quota'] > 0) {
+					$quota_percent = ($mxb['quota_used']/1000)/$mxb['quota'] * 100;
+					// This is where the over-quota mailboxes are separated.
+					if($quota_percent >= 100) {
+						$over_mailboxes[] = $mxb['emailaddr'];
+					}
+					elseif ($quota_percent >= 90) {
+						$close_mailboxes[] = $mxb['emailaddr'];
+					}
+				} elseif ($mxb['quota'] == 0) {
+					$no_quota_mailboxes[] = $mxb['emailaddr'];
 				}
-				elseif ($quota_percent >= 90) {
-					$close_mailboxes[] = $mxb['emailaddr'];
-				}	
 			}
 		}
-		
 		// Sleep to avoid rate-limiting
 		usleep(100000);
 	}
 }
 
 if ($term_output) {
-	echo("Over mailboxes:\n");
+	echo("Over mailboxes:" . PHP_EOL);
 	foreach ($over_mailboxes as $mxb) {
-		echo("- {$mxb}\n");
+		echo("- {$mxb}" . PHP_EOL);
 	}
-	echo("Close mailboxes:\n");
+	echo("Close mailboxes:" . PHP_EOL);
 	foreach ($close_mailboxes as $mxb) {
-		echo("- {$mxb}\n");
+		echo("- {$mxb}" . PHP_EOL);
 	}
+        echo("Mailboxes with no quota set:" . PHP_EOL);
+        foreach ($no_quota_mailboxes as $mxb) {
+                echo("- {$mxb}" . PHP_EOL);
+        }
+
 }
 
 // The email subject and contents controls. Can be customised to suit requirements.
-$email_subject = "Mailbox quota report for ".date("d/m/y");
-$email_contents = "Mailbox quota report:\n\nMailboxes found over quota:\n".implode('\n',$over_mailboxes).
-	          "\n"."Mailboxes near their quota (over 90% of quota):".implode('\n',$close_mailboxes);
+$email_subject = "Mailbox quota report for " . date("d/m/y");
+$email_contents = "Mailbox quota report:" . PHP_EOL  . PHP_EOL . "Mailboxes found over quota:" . PHP_EOL . implode(PHP_EOL,$over_mailboxes) .
+	          PHP_EOL . "Mailboxes near their quota (over 90% of quota):" . PHP_EOL . implode(PHP_EOL,$close_mailboxes) .
+	          PHP_EOL . "Mailboxes with no quota set:" . PHP_EOL . implode(PHP_EOL,$no_quota_mailboxes);
 
 $deliveryResult = mail($mail_dest, $email_subject, $email_contents);
 if($deliveryResult && $term_output) {
