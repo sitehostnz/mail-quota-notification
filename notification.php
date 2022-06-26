@@ -25,7 +25,7 @@ $over_mailboxes = [];
 $close_mailboxes = [];
 $no_quota_mailboxes = [];
 
-// Querries the SiteHost API and returns a the JSON dictionary.
+// Queries the SiteHost API and returns a the JSON dictionary.
 function getAPI_JSON($uri) {
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $uri);
